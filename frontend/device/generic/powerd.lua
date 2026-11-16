@@ -156,7 +156,11 @@ end
 function BasePowerD:turnOnFrontlight(done_callback)
     if not self.device:hasFrontlight() then return end
     if self:isFrontlightOn() then return false end
-    if self.fl_intensity == self.fl_min then return false end  --- @fixme what the hell?
+    if self.fl_intensity == self.fl_min then
+        -- No saved intensity (frontlight was fully off): restore to half brightness
+        -- instead of refusing to turn on, so the toggle always works.
+        self.fl_intensity = math.ceil((self.fl_min + self.fl_max) / 2)
+    end
     local cb_handled = self:turnOnFrontlightHW(done_callback)
     self.is_fl_on = true
     self:stateChanged()
